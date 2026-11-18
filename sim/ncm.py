@@ -79,7 +79,8 @@ def loopgain(vin=1.8, il=10e-3, d=D):
     c = np.where((m[:-1] >= 0) & (m[1:] < 0))[0]
     fu = float(f[c[-1]]) if len(c) else np.nan
     pm = float(min((180 + ph[k]) % 360 for k in c)) if len(c) else np.nan
-    return f, T, dict(T0_dB=float(m[0]), fu_Hz=fu, pm_deg=pm)
+    A_ea = float(db(r['v(od)'][0] / r['v(fbg)'][0]))  # error-amplifier DC gain (its other input is AC-grounded)
+    return f, T, dict(T0_dB=float(m[0]), fu_Hz=fu, pm_deg=pm, A_ea_dB=A_ea)
 
 
 def noise(vin=1.8, il=10e-3, d=D):

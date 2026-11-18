@@ -28,6 +28,12 @@ def decorate(ax):
         t.set_fontweight('bold')
 
 
+def top_legend(ax, ncol=2, **kw):
+    """Legend above the axes, so it never covers data (as in the paper's figures)."""
+    ax.legend(loc='lower center', bbox_to_anchor=(.5, 1.02), ncol=ncol, borderaxespad=0, columnspacing=.9,
+              handlelength=2.0, **kw)
+
+
 def save(fig, name):
     fig.tight_layout(pad=.4, h_pad=.5)
     fig.savefig(FIG / f'{name}.pdf', bbox_inches='tight', pad_inches=.025)
@@ -41,7 +47,7 @@ def fig_conventional():
     ax.semilogx(fc, db(hc), label='Conventional LDO (100 uA, 839 pF)'.replace('uA', r'$\mu$A'), **STYLE[1])
     ax.semilogx(f, db(h), label=r'NCM-LDO (289 $\mu$A, 1 nF)', **STYLE[0])
     ax.axhline(-30, **LIM); ax.set(xlim=(10, 1e10), ylim=(-90, 5), xlabel='Frequency (Hz)', ylabel='PSRR (dB)')
-    ax.legend(loc='lower left'); decorate(ax); save(fig, 'psrr_conventional')
+    top_legend(ax, 2); decorate(ax); save(fig, 'psrr_conventional')
 
 
 def fig_envelope():
@@ -56,7 +62,7 @@ def fig_envelope():
     ax.semilogx(f, curves[(1.71, 10e-3, False)], label='1.71 V / 10 mA', **STYLE[1])
     ax.semilogx(f, curves[(1.89, 8e-3, False)], label='1.89 V / 8 mA', **STYLE[2])
     ax.axhline(-30, **LIM); ax.set(xlim=(10, 1e10), ylim=(-90, -20), xlabel='Frequency (Hz)', ylabel='PSRR (dB)')
-    ax.legend(loc='lower left'); decorate(ax); save(fig, 'psrr_envelope')
+    top_legend(ax, 3); decorate(ax); save(fig, 'psrr_envelope')
 
 
 def fig_loop():
@@ -66,7 +72,7 @@ def fig_loop():
         axs[0].semilogx(f, db(T), label=f"{lab}: PM {m['pm_deg']:.0f}" + r'$^\circ$', **st)
         axs[1].semilogx(f, np.unwrap(np.angle(T)) * 180 / np.pi, **st)
     axs[0].axhline(0, color='.4', lw=.7); axs[0].set(ylabel='Loop gain (dB)', ylim=(-60, 100))
-    axs[0].legend(loc='lower left', ncol=1)
+    top_legend(axs[0], 3)
     axs[1].axhline(-180, **LIM); axs[1].set(ylabel='Phase (deg)', xlabel='Frequency (Hz)', xlim=(10, 1e9), ylim=(-270, 30))
     for a in axs:
         decorate(a)
@@ -80,7 +86,7 @@ def fig_pm():
         m = [ncm.loopgain(v, il)[2] for il in loads]
         axs[0].semilogx(np.array(loads) * 1e3, [x['pm_deg'] for x in m], marker='o', ms=2.5, label=f'{v} V', **st)
         axs[1].semilogx(np.array(loads) * 1e3, [x['fu_Hz'] / 1e6 for x in m], marker='o', ms=2.5, **st)
-    axs[0].axhline(45, **LIM); axs[0].set(ylabel='PM (deg)', ylim=(30, 80)); axs[0].legend(loc='lower right')
+    axs[0].axhline(45, **LIM); axs[0].set(ylabel='PM (deg)', ylim=(30, 80)); top_legend(axs[0], 2)
     axs[1].set(ylabel='Crossover (MHz)', xlabel='Load current (mA)', ylim=(0, 25))
     for a in axs:
         decorate(a)
@@ -99,7 +105,7 @@ def fig_load_step():
         ax.set(ylabel=r'$\Delta V_{\rm OUT}$ (mV)', ylim=(-25, 25), xlim=(-0.5, 5))
         ax.set_title('(a) 8 to 10 mA' if i == 0 else '(b) 10 to 8 mA', loc='left', fontsize=8, fontweight='bold', pad=3)
         decorate(ax)
-    axs[0].legend(loc='upper right', ncol=2, fontsize=6); axs[1].set_xlabel(r'Time from load transition ($\mu$s)')
+    axs[1].legend(*axs[0].get_legend_handles_labels(), loc='lower right', bbox_to_anchor=(.99, .13), ncol=2, fontsize=6); axs[1].set_xlabel(r'Time from load transition ($\mu$s)')
     save(fig, 'load_step')
 
 
@@ -132,7 +138,7 @@ def fig_tracking():
     ax.semilogx(f, db(1 - r['v(g)']), label=r'Gate error $1-V_{\rm G}/V_{\rm IN}$', **STYLE[1])
     ax.semilogx(f, db(r['v(r)'] - r['v(out)']), label=r'Tracking error $(V_{\rm R}-V_{\rm OUT})/V_{\rm IN}$', **STYLE[2])
     ax.set(xlim=(1e5, 3e9), ylim=(-70, 10), xlabel='Frequency (Hz)', ylabel='Magnitude (dB)')
-    ax.legend(loc='upper left'); decorate(ax); save(fig, 'tracking')
+    top_legend(ax, 1); decorate(ax); save(fig, 'tracking')
 
 
 def fig_techplot():
@@ -156,7 +162,7 @@ def fig_techplot():
                     arrowprops=dict(arrowstyle='-', lw=.5))
     axs[0].set(xlabel=r'$g_m/I_D$ (1/V)', ylabel=r'$I_D/W$ (A/m)', ylim=(0.05, 200))
     axs[1].set(xlabel=r'$g_m/I_D$ (1/V)', ylabel=r'$g_m r_o$ (V/V)', ylim=(0, 160))
-    axs[0].legend(loc='lower left', fontsize=5.5, handlelength=1.6)
+    fig.legend(*axs[0].get_legend_handles_labels(), loc='lower center', bbox_to_anchor=(.5, .99), ncol=3, fontsize=6, handlelength=2.0, columnspacing=.9)
     for a in axs:
         decorate(a)
     save(fig, 'techplot')

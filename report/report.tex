@@ -26,7 +26,7 @@ November 2026}}
 \maketitle
 
 \begin{abstract}
-This report describes the design of a low-dropout regulator (LDO) that turns a shared, noisy 1.8-V rail into a clean 1.4-V supply for an on-chip phase-locked loop (PLL) in a 180-nm CMOS process. A conventional LDO cannot reject supply ripple above its loop bandwidth, so its power-supply rejection (PSRR) has a hump in the 1--100-MHz range, exactly where a voltage-controlled oscillator is sensitive. I designed a \emph{neutralized current-mode} LDO (NCM-LDO): the pass transistor is a 100$\times$ current-mirror copy of a reference device whose drain is held at $\Vout$, which cancels the pass device's $g_m$ and $g_{ds}$ ripple paths, and a 1-pF capacitor neutralizes the gate--drain capacitance current that the mirror would otherwise multiply by 100. All devices were sized with the $g_m/I_D$ method from the course techplots. In LTspice simulation (typical models, 27$^\circ$C) the regulator achieves $-31.3$~dB worst-case PSRR from 10~kHz to 1~GHz over 1.71--1.89~V and 8--10~mA, with 289~$\mu$A quiescent current, exactly 1~nF of on-chip capacitance, 25-mV dropout, at least 48.9$^\circ$ phase margin from no load to full load, 18.4~nV/$\sqrt{\rm Hz}$ output noise at 1~MHz and $\pm$17~mV error for an 8$\leftrightarrow$10-mA load step.
+This report describes the design of a low-dropout regulator (LDO) that turns a shared, noisy 1.8-V rail into a clean 1.4-V supply for an on-chip phase-locked loop (PLL) in a 180-nm CMOS process. A conventional LDO cannot reject supply ripple above its loop bandwidth, so its power-supply rejection (PSRR) has a hump in the 1--100-MHz range, exactly where a voltage-controlled oscillator is sensitive. I designed a \emph{neutralized current-mode} LDO (NCM-LDO): the pass transistor is a 100$\times$ current-mirror copy of a reference device whose drain is held at $\Vout$, which cancels the pass device's $g_m$ and $g_{ds}$ ripple paths, and a 1-pF capacitor neutralizes the gate--drain capacitance current that the mirror would otherwise multiply by 100. All devices were sized with the $g_m/I_D$ method from the course techplots. In LTspice simulation (typical models, 27$^\circ$C) the regulator achieves $-31.3$~dB worst-case PSRR from 10~Hz to 10~GHz over 1.71--1.89~V and 8--10~mA, with 289~$\mu$A quiescent current, exactly 1~nF of on-chip capacitance, 25-mV dropout, at least 48.9$^\circ$ phase margin from no load to full load, 18.4~nV/$\sqrt{\rm Hz}$ output noise at 1~MHz and $\pm$17~mV error for an 8$\leftrightarrow$10-mA load step.
 \end{abstract}
 
 \section{Introduction and Specifications}
@@ -47,7 +47,7 @@ Input $\Vin$ & 1.8 V ($\pm$5\%) & Shared, noisy rail \\
 Output $\Vout$ & 1.4 V $\pm$1\% & Moderate \\
 Load current & 8--10 mA, stable 0--10 mA & Moderate \\
 Headroom at 1.71 V & 310 mV & Aggressive \\
-PSRR, 10 kHz--1 GHz & $\le -30$ dB worst case & Aggressive \\
+PSRR, 10 Hz--10 GHz & $\le -30$ dB worst case & Aggressive \\
 Quiescent current & $\le$ 300 $\mu$A & Moderate \\
 Total capacitance & $\le$ 1 nF, fully on chip & Aggressive \\
 Load step 8$\leftrightarrow$10 mA, 10 ns & $\pm$20 mV & Moderate \\
@@ -162,7 +162,9 @@ Table~\ref{tab:results} summarizes the performance; every entry meets its target
 
 \input{tables/results.tex}
 
-\textbf{PSRR.} Fig.~\ref{fig:envelope} shows the worst case over all 12 line, load and load-type combinations. The PSRR is $-56$ to $-65$~dB at 100~kHz, $-51$ to $-59$~dB at 1~MHz and $-41$ to $-46$~dB at 10~MHz. It then levels off at about $-32$~dB between 40 and 400~MHz. The worst point is $-31.3$~dB (1.71~V, 10~mA, 42~MHz). Compared with the conventional LDO in Fig.~\ref{fig:conv}, the hump at 3.5~MHz is gone, an improvement of about 50~dB there.
+\textbf{PSRR.} Fig.~\ref{fig:envelope} shows the worst case over all 12 line, load and load-type combinations from 10~Hz to 10~GHz. Below 10~kHz the PSRR is $-76$ to $-84$~dB, and at 10~GHz it is back to $-60$~dB. In between it is $-56$ to $-65$~dB at 100~kHz, $-51$ to $-59$~dB at 1~MHz and $-41$ to $-46$~dB at 10~MHz. It then levels off at about $-32$~dB between 40 and 400~MHz. The worst point is $-31.3$~dB (1.71~V, 10~mA, 42~MHz). Compared with the conventional LDO in Fig.~\ref{fig:conv}, the hump at 3.5~MHz is gone, an improvement of about 50~dB there.
+
+\textbf{Gain.} The DC loop gain is 75--85~dB at every load from 0 to 10~mA (Fig.~\ref{fig:loop}). The error amplifier alone gives about 35~dB (hand estimate 33~dB in the design sheet), and the driver, mirror and output stage give the rest. At 10~mA the loop crosses over at 21.4~MHz.
 
 \begin{figure}[!t]
 \centering
@@ -215,7 +217,7 @@ Pushing this floor down needs a faster tracking amplifier or a buffered cascode 
 \end{figure}
 
 \section{Conclusion}
-I designed a neutralized current-mode LDO in 180-nm CMOS that regulates 1.8~V down to 1.4~V for an on-chip PLL. Using the pass device as a 100$\times$ mirror with its reference drain held at $\Vout$ cancels the $g_m$ and $g_{ds}$ ripple paths. A 1-pF capacitor injected at the reference drain cancels the $\Cgd$ path, which the mirror would otherwise multiply by 100. With $g_m/I_D$ sizing from the techplots, the simulated regulator meets every specification in Table~\ref{tab:specs}: $-31.3$~dB worst-case PSRR from 10~kHz to 1~GHz, 289~$\mu$A, exactly 1~nF, 25-mV dropout, at least 48.9$^\circ$ phase margin from no load to full load, 18.4~nV/$\sqrt{\rm Hz}$ and $\pm$17-mV load-step error.
+I designed a neutralized current-mode LDO in 180-nm CMOS that regulates 1.8~V down to 1.4~V for an on-chip PLL. Using the pass device as a 100$\times$ mirror with its reference drain held at $\Vout$ cancels the $g_m$ and $g_{ds}$ ripple paths. A 1-pF capacitor injected at the reference drain cancels the $\Cgd$ path, which the mirror would otherwise multiply by 100. With $g_m/I_D$ sizing from the techplots, the simulated regulator meets every specification in Table~\ref{tab:specs}: $-31.3$~dB worst-case PSRR from 10~Hz to 10~GHz, 289~$\mu$A, exactly 1~nF, 25-mV dropout, at least 48.9$^\circ$ phase margin from no load to full load, 18.4~nV/$\sqrt{\rm Hz}$ and $\pm$17-mV load-step error.
 
 The remaining PSRR floor is set by how fast the neutralizing current can be delivered into the gate node. Lowering it means spending more current, which for an on-chip LDO at this node soon stops being worth it. I therefore stopped the design at this point. The next steps would be corner, mismatch and start-up verification, and a real reference and bias circuit.
 

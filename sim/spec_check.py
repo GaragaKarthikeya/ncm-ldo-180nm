@@ -30,21 +30,27 @@ vs, vv = r['v(vin)'].real, r['v(out)'].real
 k = int(np.argmax(vv >= 0.99 * np.interp(1.8, vs, vv)))
 R['dropout_mV'], R['dropout_vin'] = (vs[k] - vv[k]) * 1e3, vs[k]
 
-# 4. PSRR, worst over 10 kHz - 1 GHz, current and resistive (140 ohm / 175 ohm) loads
+# 4. PSRR over 10 Hz - 10 GHz (also reported over 10 kHz - 1 GHz), current and resistive (140 / 175 ohm) loads
 ps = {}
 for v in LINES:
     for il in (8e-3, 10e-3):
         for kind, ld in (('I', il), ('R', f'R{VOUT / il:g}')):
             f, h = ncm.psrr(v, ld)
-            w, fw = ncm.worst(f, h)
-            ps[f'{kind}_{v}_{il*1e3:g}mA'] = dict(worst_dB=w, f_Hz=fw, at={str(x): float(np.interp(x, f, db(h))) for x in (1e5, 1e6, 1e7, 1e8, 1e9)})
+            w, fw = ncm.worst(f, h, 10, 10e9)
+            w2, fw2 = ncm.worst(f, h)
+            ps[f'{kind}_{v}_{il*1e3:g}mA'] = dict(worst_dB=w, f_Hz=fw, worst_10k_1G_dB=w2, f_10k_1G_Hz=fw2,
+                                                  at={str(x): float(np.interp(x, f, db(h))) for x in (10, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10)})
 R['psrr'] = ps
-R['psrr_worst_dB'] = max(x['worst_dB'] for x in ps.values())
-R['psrr_light'] = {f'{v}_{il*1e3:g}mA': ncm.worst(*ncm.psrr(v, il))[0] for v in (1.71, 1.89) for il in (0, 0.1e-3, 1e-3)}
+R['psrr_worst_dB'] = max(x['worst_dB'] for x in ps.values())            # 10 Hz - 10 GHz
+R['psrr_worst_10k_1G_dB'] = max(x['worst_10k_1G_dB'] for x in ps.values())
+R['psrr_light'] = {f'{v}_{il*1e3:g}mA': ncm.worst(*ncm.psrr(v, il), 10, 10e9)[0] for v in (1.71, 1.89) for il in (0, 0.1e-3, 1e-3)}
 
 # 5. Main loop: gain, crossover, phase margin from no load to full load
 R['loop'] = {f'{v}_{il*1e3:g}mA': ncm.loopgain(v, il)[2] for v in (1.71, 1.89) for il in (0, 10e-6, 0.1e-3, 1e-3, 8e-3, 10e-3)}
 R['pm_min_deg'] = min(x['pm_deg'] for x in R['loop'].values())
+R['loop_gain_dB'] = [min(x['T0_dB'] for x in R['loop'].values()), max(x['T0_dB'] for x in R['loop'].values())]
+R['fu_10mA_MHz'] = [R['loop'][f'{v}_10mA']['fu_Hz'] / 1e6 for v in (1.71, 1.89)]
+R['ea_gain_dB'] = [min(x['A_ea_dB'] for x in R['loop'].values()), max(x['A_ea_dB'] for x in R['loop'].values())]
 
 # 6. Output noise (1.8 V, 10 mA)
 f, n = ncm.noise()

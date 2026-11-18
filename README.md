@@ -13,7 +13,9 @@ An on-chip LDO that turns a shared, noisy 1.8 V rail into a clean 1.4 V supply f
 | Spec | Target | Result |
 |---|---|---|
 | Vout, 0–10 mA, 1.71–1.89 V | 1.4 V ±1 % | 1.3997–1.4067 V |
-| Worst PSRR, 10 kHz–1 GHz (8–10 mA) | ≤ −30 dB | **−31.3 dB** |
+| Worst PSRR, 10 Hz–10 GHz (8–10 mA) | ≤ −30 dB | **−31.3 dB** |
+| DC loop gain, 0–10 mA | — | 75–85 dB |
+| Crossover at 10 mA | — | 21.4 MHz |
 | Quiescent current | ≤ 300 µA | 289 µA |
 | Total on-chip capacitance | ≤ 1 nF | 1.000 nF |
 | Dropout at 10 mA | ≤ 300 mV | 25 mV |
