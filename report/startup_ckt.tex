@@ -1,0 +1,25 @@
+% Start-up kick (powered from VIN)
+\begin{circuitikz}[line width=.6pt,font=\fontsize{8}{9}\selectfont]
+\ctikzset{bipoles/length=.85cm,transistors/scale=1.0,tripoles/mos style/arrows,tripoles/pmos style/nocircle}
+\draw[line width=.85pt] (-.3,4.0) node[left]{$V_{\rm IN}$} -- (4.4,4.0);
+\node[pmos] (sp) at (1.2,3.1) {};
+\draw (sp.S) -- (1.2,4.0); \fill (1.2,4.0) circle(1pt);
+\draw (sp.G) -- ++(-.3,0) node[left]{$V_{\rm OUT}$};
+\coordinate (k) at (1.2,2.2); \draw (sp.D) -- (k); \fill (k) circle(1pt);
+\node[nmos] (sn) at (1.2,1.4) {};
+\draw (sn.D) -- (k); \draw (sn.G) -- ++(-.3,0) node[left]{$V_{\rm OUT}$};
+\node[nmos] (sd) at (1.2,.0) {};
+\draw (sn.S) -- (sd.D);
+\coordinate (sdn) at (1.2,.75); \fill (sdn) circle(1pt);
+\draw (sd.G) -- ++(-.25,0) |- (sdn);
+\draw (sd.S) -- (1.2,-.8) node[ground]{};
+\node[nmos] (ku) at (3.6,2.2) {};
+\draw (ku.D) -- (3.6,4.0); \fill (3.6,4.0) circle(1pt);
+\draw (k) -- (ku.G);
+\node[above] at (2.4,2.2){$k$};
+\draw (ku.S) -- (3.6,.9) coordinate(od) -- (4.4,.9) node[right]{OD};
+\fill (od) circle(1pt);
+\draw (od) to[R,l_=$R_Z$] (3.6,-.4) to[C,l_=$C_Z$] (3.6,-1.4) node[ground]{};
+\node[right] at (1.45,3.1){M$_{\rm SP}$}; \node[right] at (1.45,1.4){M$_{\rm SN}$}; \node[right] at (1.45,.0){M$_{\rm SD}$};
+\node[right] at (3.85,2.45){M$_{\rm KU}$};
+\end{circuitikz}

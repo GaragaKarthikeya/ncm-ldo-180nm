@@ -23,11 +23,13 @@ Phase margin, 0--10 mA & $\ge45^\circ$ & 48.9$^\circ$ min & \textbf{Met} \\
 Noise at 1 MHz & $\le$20 nV/$\sqrt{\rm Hz}$ & 18.4 nV/$\sqrt{\rm Hz}$ & \textbf{Met} \\
 Load step 8$\leftrightarrow$10 mA, 10 ns & $\pm$20 mV & $\pm$17.0 mV & \textbf{Met} \\
 Line step 1.71$\leftrightarrow$1.89 V, 10 ns & -- & -2.0 / +2.1 mV & -- \\
+Start-up from 0 V\textsuperscript{c} & Starts & $\le$13 $\mu$s & \textbf{Met} \\
 \bottomrule
 \end{tabular}
 
 \vspace{2pt}
 \parbox{\columnwidth}{\scriptsize LTspice, typical models, 27$^\circ$C, ideal reference and bias sources.
 \textsuperscript{a}Over 1.71/1.8/1.89 V, 8/10 mA, current-source and resistive loads (12 cases).
-\textsuperscript{b}At 1.8 V, 10 mA; supply current minus load current.}
+\textsuperscript{b}At 1.8 V, 10 mA; supply current minus load current.
+\textsuperscript{c}$V_{\rm IN}$ ramps of 0.1/10/100 $\mu$s to 1.71/1.89 V, 140-$\Omega$/10-mA/no load (18 cases); settling to 1\% after the ramp ends; peak 1.407 V.}
 \end{table}

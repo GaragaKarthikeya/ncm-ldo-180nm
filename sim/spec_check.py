@@ -75,3 +75,19 @@ out = ROOT / 'results' / 'specs.json'
 out.parent.mkdir(exist_ok=True)
 out.write_text(json.dumps(R, indent=1, default=float))
 print(json.dumps({k: v for k, v in R.items() if k not in ('vout', 'psrr', 'loop', 'op')}, indent=1, default=float))
+
+# 9. Start-up from 0 V (no .nodeset): Vin ramps of 0.1 / 10 / 100 us to 1.71 and 1.89 V, 140 ohm / 10 mA / no load
+import startup
+su = {}
+for vfin in (1.71, 1.89):
+    for tr in (100e-9, 10e-6, 100e-6):
+        for load in ('R', 'I', 'none'):
+            t, r = startup.run_startup(tr, load, vfin)
+            su[f'{vfin}V_{tr*1e6:g}us_{load}'] = startup.summary(t, r, tr, vfin)
+R['startup'] = su
+R['startup_all_ok'] = all(abs(x['vend'] - 1.4) < 0.014 for x in su.values())
+R['startup_settle_max_us'] = max(x['t_settle_us'] for x in su.values())
+R['startup_peak_max_V'] = max(x['vmax'] for x in su.values())
+R['startup_peak_loaded_V'] = max(x['vmax'] for k, x in su.items() if not k.endswith('none'))
+out.write_text(json.dumps(R, indent=1, default=float))
+print('startup', R['startup_all_ok'], R['startup_settle_max_us'], R['startup_peak_max_V'], R['startup_peak_loaded_V'])

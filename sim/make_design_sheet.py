@@ -168,7 +168,20 @@ put('fu', 'Crossover fu = gm,in*Rz*gm,drv*Neff/(2*pi*Cout)', '{gmpi}*{rz}*{gmdrv
 put('pm', 'PM ~ 90 - atan(fu/f,gate)', '90-DEGREES(ATAN({fu}/({fpg}+{fpgr})))', 'deg', sim=L10['pm_deg'], fmt='0.0', comment='Other poles (od, dd, tracking loop) take the rest')
 put('dvh', 'Load-step error dI/(2*pi*fu*Cout)', '{di}/(2*PI()*{fu}*{cout})*1000', 'mV', sim=S['load_step']['1.71V']['under_mV'], fmt='0.0')
 
-step('Step 8: Performance results', ('Expected', 'Units', 'Simulated', 'Error', 'Comment'))
+step('Step 8: Start-up kick (powered from Vin)')
+note('Both amplifiers run from Vout, so Vout = 0 is a stable state: without a kick the LDO never starts (verified in simulation).')
+import startup, trip
+_trip = trip.trip(1.8)
+_t, _r = startup.run_startup(100e-9, 'R', 1.8, after=20e-6)
+_t0 = float(_t[np.argmax(_r['v(out)'].real > 0.1)] - 100e-9)
+put('vthsd', 'Detector stack: |VGS| per device (weak inversion)', lookup('n', 540e-9, 22, 0.4, 'vgs'), 'V', choice=False,
+    comment='Techplot NMOS L=540n at gm/Id = 22 (the stack carries only ~nA-uA)')
+put('vtrip', 'Trip point ~ 2 VGS (Msn + Msd)', '2*{vthsd}', 'V', sim=_trip[0], comment='Must lie above 0 and below the regulated 1.4 V with margin')
+put('ikick', 'Kick current into OD (Mku, W/L 0.5/4 um)', 14e-6, 'A', sim=_trip[1], fmt='0.0E+00', choice=True, comment='Sized small: a stronger kick causes chatter / overshoot')
+put('tdel', 'Delay before Vout rises ~ Cz*VGS(Mdrv)/Ikick', '{cz}*0.6/{ikick}', 's', sim=_t0, fmt='0.00E+00',
+    comment='OD must charge Cz up to the driver threshold; Cz holds the kick, so the hand-over does not chatter')
+
+step('Step 9: Performance results', ('Expected', 'Units', 'Simulated', 'Error', 'Comment'))
 put('r_iq', 'Quiescent current (sum of branches)', '({iref}+{irg}+{itail}+2*{iflw}+2*{itrk}+{idiv})*1E6', 'uA', sim=S['iq_uA'], fmt='0.0',
     comment='Iref + Rg + OTA tail + 2 followers + 2 tracking tails + divider')
 put('r_cap', 'Total capacitance', '({cout}+{cz}+{cff}+{cn}+' + f"{D['Cdeg']})*1E12", 'pF', sim=S['cap_total_pF'], fmt='0.0')

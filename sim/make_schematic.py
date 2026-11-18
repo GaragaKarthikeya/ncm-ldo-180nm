@@ -43,6 +43,9 @@ P = {
     'Mcn': ('nmos4', 1056, 224, 'R0'), 'Mdrv': ('nmos4', 1056, 416, 'R0'),
     # load
     'RL': ('res', 1488, 48, 'R0'), 'Co': ('cap', 1600, 64, 'R0'),
+    # start-up kick (below the load, connected by the vin / out / g labels)
+    'Msp': ('pmos4', 1520, 400, 'M180'), 'Msn': ('nmos4', 1520, 432, 'R0'), 'Msd': ('nmos4', 1520, 528, 'R0'),
+    'Mku': ('nmos4', 1824, 400, 'R0'),
     # tracking amplifier
     'Mfo': ('nmos4', 1840, -112, 'R0'), 'Ifo': ('current', 1888, 64, 'R0'),
     'Ml1': ('pmos4', 2384, -48, 'R180'), 'Ml2': ('pmos4', 2512, -48, 'M180'),
@@ -91,6 +94,12 @@ W = [
     [(1360, -64), (1360, 16), (1712, 16), (1712, -192), (3008, -192)],
     [(1504, 16), (1504, 64)], [(1504, 144), (1504, 192)],
     [(1616, 16), (1616, 64)], [(1616, 128), (1616, 176)],
+    # start-up kick: Msp pull-up from vin, Msn+Msd stack pull-down (gates = out), node k drives follower Mku (vin -> od)
+    [(1568, 304), (1568, 272)], [(1568, 352), (1616, 352), (1616, 288), (1568, 288)], [(1520, 320), (1472, 320)],
+    [(1568, 400), (1568, 432)], [(1520, 512), (1472, 512)], [(1568, 480), (1600, 480)],
+    [(1520, 608), (1488, 608), (1488, 528), (1568, 528)], [(1568, 576), (1600, 576)], [(1568, 624), (1568, 656)],
+    [(1568, 416), (1792, 416), (1792, 480), (1824, 480)],
+    [(1872, 400), (1872, 368)], [(1872, 496), (1872, 528)], [(1872, 448), (1920, 448)],
     # follower for Vout (Mfo) and its sink
     [(1888, -112), (1888, -192)], [(1840, -32), (1792, -32), (1792, -192)],
     [(1888, -16), (1888, 64)], [(1888, -64), (1936, -64), (1936, -16)], [(1888, 144), (1888, 192)],
@@ -120,9 +129,12 @@ F = [  # net labels and grounds
     (1936, -16, '0'), (1888, 192, '0'), (2400, 192, '0'), (2512, 192, '0'),
     (2336, 416, '0'), (2560, 416, '0'), (2656, 32, 'gc'), (3104, -32, 'r'),
     (2960, -16, '0'), (3008, 192, '0'),
+    (1568, 272, 'vin'), (1472, 320, 'out'), (1472, 512, 'out'), (1600, 480, '0'), (1600, 576, '0'), (1568, 656, '0'),
+    (1872, 368, 'vin'), (1872, 528, 'od'), (1920, 448, '0'),
 ]
 TITLES = [(-160, -352, 'Error amplifier (powered from Vout)'), (880, -352, 'Supply, mirror power stage and driver'),
-         (1792, -352, 'Tracking amplifier (powered from Vout): holds r = Vout')]
+         (1792, -352, 'Tracking amplifier (powered from Vout): holds r = Vout'),
+         (1440, 240, 'Start-up kick (powered from Vin)')]
 
 DIRECTIVES = ['!.include ../models/models_292p.txt', '!' + NODESET, '!.options numdgt=12',
               '!.ac dec 50 1k 10G', '!.meas AC worst_psrr MAX mag(V(out)) FROM 10k TO 1G',
@@ -131,11 +143,12 @@ DIRECTIVES = ['!.include ../models/models_292p.txt', '!' + NODESET, '!.options n
               ';Pass = 100 x Mref mirror (gds cancelled); Cn ~ Cgd(Mpass) supplies the gate current at node r;',
               ';the tracking amplifier holds r = Vout through cascode Mc (body tied to r).',
               ';Rg (Vin->g) keeps the gate-node pole up at light load; its current is not mirrored.',
-              ';Cff across Rtop: beta -> 1 above ~100 kHz, so the loop crosses at ~21 MHz and the divider noise is bypassed.']
+              ';Cff across Rtop: beta -> 1 above ~100 kHz, so the loop crosses at ~21 MHz and the divider noise is bypassed.',
+              ';Start-up: while Vout < ~2 Vth, k is high and follower Mku charges od (held by Cz), turning the driver on; off afterwards.']
 # Named internal nodes so the netlist reads like the design (wire points that carry these names)
 NAMED = [(320, -16, 'tp'), (544, 176, 'od'), (656, 304, 'z'), (320, 176, 'a2'), (1104, 176, 'g'),
          (1104, 368, 'dd'), (944, 304, 'vcn'), (96, 48, 'refd'), (2336, 32, 'd1'), (1888, 16, 'os'),
-         (3008, 16, 'rsh'), (2336, 240, 's1'), (2560, 240, 's2')]
+         (3008, 16, 'rsh'), (2336, 240, 's1'), (2560, 240, 's2'), (1568, 416, 'k'), (1568, 528, 'sd')]
 
 # Spread crowded regions: every coordinate right of a boundary moves right by its shift. Boundaries sit in empty
 # columns (no symbol has its origin and a pin on opposite sides), so pins stay on their wires and only

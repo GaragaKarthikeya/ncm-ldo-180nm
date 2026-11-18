@@ -22,9 +22,10 @@ An on-chip LDO that turns a shared, noisy 1.8 V rail into a clean 1.4 V supply f
 | Phase margin, 0–10 mA | ≥ 45° | 48.9° min |
 | Noise at 1 MHz | ≤ 20 nV/√Hz | 18.4 nV/√Hz |
 | Load step 8↔10 mA, 10 ns | ±20 mV | ±17.0 mV |
+| Start-up from 0 V (0.1–100 µs ramps, 18 cases) | starts | clean, no chatter, ≤ 1.407 V peak |
 
 LTspice, typical models (course 180 nm, `models/models_292p.txt`), 27 °C, ideal reference and bias.
-Corners, mismatch, start-up and a real reference/bias are **not** verified.
+Start-up is verified with behavioral (compliant) bias generators. Corners, mismatch and a real reference/bias are **not** verified.
 
 ## Layout
 | Folder | Contents |

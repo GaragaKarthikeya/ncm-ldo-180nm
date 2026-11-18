@@ -168,6 +168,29 @@ def fig_techplot():
     save(fig, 'techplot')
 
 
+def fig_startup():
+    """Power-up from 0 V: (a) 100-ns supply ramp, 140-ohm load, both line extremes; (b) 100-us ramp with no load."""
+    import startup
+    fig, axs = plt.subplots(2, 1, figsize=(3.45, 2.75))
+    for vfin, st in zip((1.71, 1.89), STYLE):
+        t, r = startup.run_startup(100e-9, 'R', vfin, after=15e-6)
+        axs[0].plot(t * 1e6, r['v(out)'].real, label=rf'$V_{{\rm OUT}}$, $V_{{\rm IN}}\to${vfin} V', **st)
+    axs[0].plot(t * 1e6, r['v(vin)'].real, color='.5', lw=.8, label=r'$V_{\rm IN}$ (1.89 V)')
+    axs[0].set(ylabel='Voltage (V)', xlim=(0, 15), ylim=(0, 2.0))
+    axs[0].set_title(r'(a) 100-ns ramp, 140-$\Omega$ load', loc='left', fontsize=8, fontweight='bold', pad=3)
+    axs[0].legend(loc='lower right', fontsize=6)
+    t, r = startup.run_startup(100e-6, 'none', 1.89, after=30e-6)
+    axs[1].plot(t * 1e6, r['v(vin)'].real, color='.5', lw=.8, label=r'$V_{\rm IN}$')
+    axs[1].plot(t * 1e6, r['v(out)'].real, label=r'$V_{\rm OUT}$', **STYLE[0])
+    axs[1].plot(t * 1e6, r['v(k)'].real, label='Kick node $k$', **STYLE[2])
+    axs[1].set(ylabel='Voltage (V)', xlabel=r'Time ($\mu$s)', xlim=(0, 130), ylim=(0, 2.0))
+    axs[1].set_title(r'(b) 100-$\mu$s ramp, no load', loc='left', fontsize=8, fontweight='bold', pad=3)
+    axs[1].legend(loc='lower right', fontsize=6)
+    for a in axs:
+        decorate(a)
+    save(fig, 'startup')
+
+
 if __name__ == '__main__':
     import sys
     todo = sys.argv[1:] or [k[4:] for k in globals() if k.startswith('fig_')]

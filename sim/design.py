@@ -22,6 +22,9 @@ D = dict(
     Wf=4e-6, If=20e-6, Wp=12e-6, It=30e-6, Rdeg=13e3, Cdeg=150e-15, Wl=6e-6,
     # output capacitor (trimmed so the total intentional capacitance is exactly 1 nF)
     Cout=890.85e-12,
+    # start-up kick (powered from Vin): Msp weak pull-up, Msn+Msd stack trips at ~2 Vth of Vout; while Vout is low,
+    # follower Mku charges the error-amp output od (held by Cz, so the kick is remembered: no chatter). Off afterwards.
+    Wsp=1e-6, Lsp=4e-6, Wsn=2e-6, Wsd=2e-6, Lsn=540e-9, Wku=0.5e-6, Lku=4e-6,
 )
 
 CAP_TOTAL = D['Cout'] + D['Cz'] + D['Cff'] + D['Cn'] + D['Cdeg']

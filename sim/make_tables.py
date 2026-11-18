@@ -29,6 +29,8 @@ def results():
         (r'Noise at 1 MHz', r'$\le$20 nV/$\sqrt{\rm Hz}$', f"{S['noise_1MHz_nV']:.1f} nV/$\\sqrt{{\\rm Hz}}$", ok),
         (r'Load step 8$\leftrightarrow$10 mA, 10 ns', r'$\pm$20 mV', f'$\\pm${ls:.1f} mV', ok),
         (r'Line step 1.71$\leftrightarrow$1.89 V, 10 ns', '--', f"{S['line_step_mV'][0]:.1f} / +{S['line_step_mV'][1]:.1f} mV", '--'),
+        (r'Start-up from 0 V\textsuperscript{c}', 'Starts', f"$\\le${S['startup_settle_max_us']:.0f} $\\mu$s",
+         ok if S['startup_all_ok'] else r'\textbf{Not met}'),
     ]
     body = '\n'.join(' & '.join(r) + r' \\' for r in rows)
     (OUT / 'results.tex').write_text(r"""\begin{table}[!t]
@@ -48,7 +50,8 @@ Parameter & Target & NCM-LDO & Status \\
 \vspace{2pt}
 \parbox{\columnwidth}{\scriptsize LTspice, typical models, 27$^\circ$C, ideal reference and bias sources.
 \textsuperscript{a}Over 1.71/1.8/1.89 V, 8/10 mA, current-source and resistive loads (12 cases).
-\textsuperscript{b}At 1.8 V, 10 mA; supply current minus load current.}
+\textsuperscript{b}At 1.8 V, 10 mA; supply current minus load current.
+\textsuperscript{c}$V_{\rm IN}$ ramps of 0.1/10/100 $\mu$s to 1.71/1.89 V, 140-$\Omega$/10-mA/no load (18 cases); settling to 1\% after the ramp ends; peak """ + f"{S['startup_peak_max_V']:.3f}" + r""" V.}
 \end{table}
 """)
 
@@ -69,6 +72,13 @@ def sizing():
                'Mfo': 'M$_{\\rm FO}$', 'Mfr': 'M$_{\\rm FR}$'}.get(n, sym)
         Id = f"{m['Id']*1e3:.2f} mA" if m['Id'] > 1e-3 else f"{m['Id']*1e6:.1f} $\\mu$A"
         rows.append(f"{sym} & {r} & {W} / {L} & {Id} & {m['gm_id']:.1f} & {m['gmro']:.0f} \\\\")
+    rows.append(r'\midrule')
+    for n, sym, r in (('Msp', 'M$_{\\rm SP}$', 'Start-up detector'), ('Msn', 'M$_{\\rm SN,SD}$', 'Start-up detector'),
+                      ('Mku', 'M$_{\\rm KU}$', 'Start-up kick')):
+        m = devs[n]
+        L = m['L'].replace('n', ' nm').replace('u', ' $\\mu$m')
+        Id = f"{m['Id']*1e9:.0f} nA" if m['Id'] > 1e-9 else 'off'
+        rows.append(f"{sym} & {r} & {m['W'].replace('u', '')} / {L} & {Id} & -- & -- \\\\")
     (OUT / 'sizing.tex').write_text(r"""\begin{table}[!t]
 \centering
 \caption{Transistor sizes and simulated operating point (1.8 V, 10 mA)}
@@ -91,7 +101,8 @@ def budget():
     irg = devs['Mref']['vgs'] / D['Rg']
     items = [('Mirror reference ($I_D/N$)', devs['Mref']['Id']), ('$R_G$ (gate pull-up)', irg),
              ('Error-amplifier tail', D['Itail']), ('Tracking followers (2$\\times$)', 2 * D['If']),
-             ('Tracking pair tails (2$\\times$)', 2 * D['It']), ('Feedback divider', 1.4 / (D['Rtop'] + D['Rbot']))]
+             ('Tracking pair tails (2$\\times$)', 2 * D['It']), ('Feedback divider', 1.4 / (D['Rtop'] + D['Rbot'])),
+             ('Start-up detector', devs['Msp']['Id'])]
     rows = '\n'.join(f"{a} & {b*1e6:.1f} \\\\" for a, b in items)
     (OUT / 'budget.tex').write_text(r"""\begin{table}[!t]
 \centering

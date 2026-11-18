@@ -32,6 +32,11 @@ def netlist(vin=1.8, load=10e-3, ac=True, loop=False, d=D):
          f"Mref r g vin vin pmos292p W={d['Wpass']*1e6/d['N']:.3f}u L=180n",
          f"Mpass out g vin vin pmos292p W={d['Wpass']*1e6:.0f}u L=180n",
          f"Cn vin r {d['Cn']}", f"Rg vin g {d['Rg']}",
+         # start-up kick (supply = vin): k is high only while Vout is below ~2 Vth
+         f"Msp k out vin vin pmos292p W={d['Wsp']*1e6:g}u L={d['Lsp']*1e6:g}u",
+         f"Msn k out sd 0 nmos292p W={d['Wsn']*1e6:g}u L={d['Lsn']*1e9:g}n",
+         f"Msd sd sd 0 0 nmos292p W={d['Wsd']*1e6:g}u L={d['Lsn']*1e9:g}n",
+         f"Mku vin k od 0 nmos292p W={d['Wku']*1e6:g}u L={d['Lku']*1e6:g}u",
          # tracking amplifier (supply = out)
          f"Mfo out out os 0 nmos292p W={d['Wf']*1e6:g}u L=180n", f"Ifo os 0 {d['If']}",
          f"Mfr out r rsh 0 nmos292p W={d['Wf']*1e6:g}u L=180n", f"Ifr rsh 0 {d['If']}",
