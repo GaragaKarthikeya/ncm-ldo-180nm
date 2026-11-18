@@ -1,0 +1,15 @@
+# simulation scratch
+.work/
+__pycache__/
+*.py[cod]
+# LTspice outputs regenerated from the schematic
+*.raw
+*.log
+*.net
+*.db
+*.bak
+# LaTeX build files (report.pdf is kept)
+report/*.aux
+report/*.out
+report/*.synctex.gz
+report/build.log

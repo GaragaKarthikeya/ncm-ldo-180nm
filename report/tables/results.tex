@@ -1,0 +1,30 @@
+\begin{table}[!t]
+\centering
+\caption{Simulated performance against the specification}
+\label{tab:results}
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Parameter & Target & NCM-LDO & Status \\
+\midrule
+Input range & 1.71--1.89 V & 1.71--1.89 V & \textbf{Met} \\
+$V_{\rm OUT}$, 0--10 mA, all $V_{\rm IN}$ & 1.4 V $\pm$1\% & 1.3997--1.4067 V & \textbf{Met} \\
+Line regulation (10 mA) & -- & 0.02 mV & -- \\
+Load regulation 8$\to$10 / 0$\to$10 mA & -- & 0.95 / 7.0 mV & -- \\
+Dropout at 10 mA & $\le$300 mV & 25 mV & \textbf{Met} \\
+Worst PSRR, 10 kHz--1 GHz\textsuperscript{a} & $\le-30$ dB & -31.3 dB & \textbf{Met} \\
+Quiescent current\textsuperscript{b} & $\le$300 $\mu$A & 289 $\mu$A & \textbf{Met} \\
+Total capacitance & $\le$1 nF & 1000 pF & \textbf{Met} \\
+Phase margin, 0--10 mA & $\ge45^\circ$ & 48.9$^\circ$ min & \textbf{Met} \\
+Noise at 1 MHz & $\le$20 nV/$\sqrt{\rm Hz}$ & 18.4 nV/$\sqrt{\rm Hz}$ & \textbf{Met} \\
+Load step 8$\leftrightarrow$10 mA, 10 ns & $\pm$20 mV & $\pm$17.0 mV & \textbf{Met} \\
+Line step 1.71$\leftrightarrow$1.89 V, 10 ns & -- & -2.0 / +2.1 mV & -- \\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{\columnwidth}{\scriptsize LTspice, typical models, 27$^\circ$C, ideal reference and bias sources.
+\textsuperscript{a}Over 1.71/1.8/1.89 V, 8/10 mA, current-source and resistive loads (12 cases).
+\textsuperscript{b}At 1.8 V, 10 mA; supply current minus load current.}
+\end{table}

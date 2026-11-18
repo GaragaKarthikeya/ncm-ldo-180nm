@@ -1,0 +1,98 @@
+% Full NCM-LDO schematic (values: Table II and design.py)
+\begin{circuitikz}[line width=.6pt,font=\fontsize{8}{9}\selectfont]
+\ctikzset{bipoles/length=.9cm,transistors/scale=1.0,tripoles/mos style/arrows,tripoles/pmos style/nocircle}
+% ---------------- error amplifier (supply = VOUT) ----------------
+\draw[line width=.85pt] (-1.2,6.4) node[left]{$V_{\rm OUT}$} -- (5.2,6.4);
+\draw (-.7,6.4) to[R,l_=$R_T$] (-.7,3.9) coordinate(fb) to[R,l_=$R_B$] (-.7,-.5);
+\draw (.2,6.4) to[C,l=$C_{FF}$] (.2,3.9) -- (fb);
+\fill (fb) circle(1pt); \fill (-.7,6.4) circle(1pt); \fill (.2,6.4) circle(1pt);
+\node[below] at (-.25,3.9){FB};
+\draw (3.2,6.4) to[I,l=$I_{T}$] (3.2,5.0) coordinate(tp);
+\node[pmos] (pi1) at (2.4,4.2) {};
+\node[pmos,xscale=-1] (pi2) at (4.0,4.2) {};
+\draw (pi1.S) |- (tp) -| (pi2.S); \fill (tp) circle(1pt);
+\draw (pi1.G) -- ++(-.25,0) node[left]{$V_{\rm REF}$};
+\draw (pi2.G) -- ++(.25,0) node[right]{FB};
+\node[nmos,xscale=-1] (nl1) at (2.4,1.4) {};
+\node[nmos] (nl2) at (4.0,1.4) {};
+\draw (pi1.D) -- (nl1.D); \draw (pi2.D) -- (nl2.D);
+\draw (nl1.G) -- (nl2.G); \draw (nl1.G) ++(.25,0) coordinate(mg) |- (2.4,2.5); \fill (mg) circle(1pt); \fill (2.4,2.5) circle(1pt);
+\draw (nl1.S) -- (2.4,-.5); \draw (nl2.S) -- (4.0,-.5);
+\coordinate (od) at (4.0,2.6); \fill (od) circle(1pt);
+\draw (od) -- (5.2,2.6) to[R,l=$R_Z$] (5.2,1.0) to[C,l=$C_Z$] (5.2,-.5);
+\fill (5.2,2.6) circle(1pt);
+\draw (5.2,2.6) -- (5.9,2.6) node[right]{OD};
+\node at (1.75,4.8){M$_{\rm PI1}$}; \node at (4.65,4.8){M$_{\rm PI2}$};
+\node[left] at (2.15,.95){M$_{\rm NL1}$}; \node[right] at (4.25,.95){M$_{\rm NL2}$};
+% ---------------- mirror power stage and driver ----------------
+\draw[line width=.85pt] (6.9,6.4) node[left]{$V_{\rm IN}$} -- (11.0,6.4);
+\node[pmos,xscale=-1] (mref) at (8.6,5.4) {};
+\node[pmos] (mp) at (10.6,5.4) {};
+\draw (mref.S) -- (8.6,6.4); \draw (mp.S) -- (10.6,6.4);
+\draw (mref.G) -- (mp.G); \coordinate (g) at (9.55,5.4); \fill (g) circle(1pt);
+\draw (9.55,6.4) to[R,l_=$R_G$] (g);
+\fill (8.6,6.4) circle(1pt); \fill (9.55,6.4) circle(1pt); \fill (7.4,6.4) circle(1pt);
+\coordinate (r) at (8.6,4.4);
+\draw (mref.D) -- (r);
+\draw (7.4,6.4) to[C,l_=$C_N$] (7.4,4.4) -- (r); \fill (r) circle(1pt);
+\node[above left] at (r){$r$};
+\node[pmos] (mc) at (8.6,3.5) {};
+\draw (mc.S) -- (r);
+\draw (mc.G) -- ++(-.3,0) node[left]{GC};
+\node[nmos] (mcn) at (8.6,1.75) {};
+\draw (mc.D) -- (mcn.D);
+\coordinate (gg) at (8.6,2.6); \fill (gg) circle(1pt);
+\draw (gg) -- (9.55,2.6) -- (g);
+\node[right] at (9.55,3.4){$g$};
+\draw (mcn.G) -- ++(-.3,0) node[left]{$V_{\rm CN}$};
+\node[nmos] (md) at (8.6,.35) {};
+\draw (mcn.S) -- (md.D);
+\draw (md.G) -- ++(-.3,0) node[left]{OD};
+\draw (md.S) -- (8.6,-.5);
+\node[left] at (8.35,5.85){M$_{\rm REF}$}; \node[right] at (10.85,5.85){M$_{\rm PASS}$};
+\node[right] at (8.85,3.5){M$_{\rm C}$}; \node[right] at (8.85,1.75){M$_{\rm CN}$}; \node[right] at (8.85,.35){M$_{\rm DRV}$};
+% output
+\coordinate (vo) at (10.6,4.0);
+\draw (mp.D) -- (vo) -- (12.6,4.0);
+\fill (vo) circle(1pt); \fill (11.5,4.0) circle(1pt);
+\draw (11.5,4.0) to[C,l_=$C_{\rm OUT}$] (11.5,-.5);
+\draw (12.6,4.0) to[I,l=$I_L$] (12.6,-.5);
+\node[above] at (11.5,4.0){$V_{\rm OUT}$};
+% ---------------- tracking amplifier (supply = VOUT) ----------------
+\draw[line width=.85pt] (13.5,6.4) node[left]{$V_{\rm OUT}$} -- (19.6,6.4);
+\node[nmos] (fo) at (14.3,5.2) {};
+\draw (fo.D) -- (14.3,6.4); \draw (fo.G) -- ++(-.3,0) node[left]{$V_{\rm OUT}$};
+\coordinate (os) at (14.3,3.0); \draw (fo.S) -- (os); \fill (os) circle(1pt);
+\draw (os) to[I,l_=$I_F$] (14.3,-.5);
+\node[pmos,xscale=-1] (l1) at (15.6,5.4) {};
+\node[pmos] (l2) at (17.6,5.4) {};
+\draw (l1.S) -- (15.6,6.4); \draw (l2.S) -- (17.6,6.4);
+\draw (l1.G) -- (l2.G); \draw (l1.G) ++(.25,0) coordinate(lg) |- (15.6,4.5); \fill (lg) circle(1pt);
+\node[nmos] (m1) at (15.6,3.0) {};
+\node[nmos,xscale=-1] (m2) at (17.6,3.0) {};
+\draw (l1.D) -- (m1.D); \draw (l2.D) -- (m2.D);
+\fill (15.6,4.5) circle(1pt);
+\coordinate (gco) at (17.6,4.2); \fill (gco) circle(1pt);
+\draw (gco) -- (18.25,4.2) node[right]{GC};
+\draw (os) -- (m1.G);
+\coordinate (s1) at (15.6,2.0); \coordinate (s2) at (17.6,2.0);
+\draw (m1.S) -- (s1) -- (15.6,1.3) to[I,l_=$I_{T}$] (15.6,-.5);
+\draw (m2.S) -- (s2) -- (17.6,1.3) to[I,l=$I_{T}$] (17.6,-.5);
+\draw (s1) to[R,l=$R_{\rm DEG}$] (s2);
+\draw (15.6,1.3) to[C,l_=$C_{\rm DEG}$] (17.6,1.3);
+\fill (s1) circle(1pt); \fill (s2) circle(1pt); \fill (15.6,1.3) circle(1pt); \fill (17.6,1.3) circle(1pt);
+\node[nmos,xscale=-1] (fr) at (19.2,5.2) {};
+\draw (fr.D) -- (19.2,6.4); \draw (fr.G) -- ++(.3,0) node[right]{$r$};
+\coordinate (rsh) at (19.2,3.0); \draw (fr.S) -- (rsh); \fill (rsh) circle(1pt);
+\draw (rsh) -- (m2.G);
+\draw (rsh) to[I,l=$I_F$] (19.2,-.5);
+\fill (14.3,6.4) circle(1pt); \fill (15.6,6.4) circle(1pt); \fill (17.6,6.4) circle(1pt);
+\node[left] at (14.0,5.95){M$_{\rm FO}$}; \node[right] at (19.5,5.95){M$_{\rm FR}$};
+\node[left] at (15.35,5.85){M$_{\rm L1}$}; \node[right] at (17.85,5.85){M$_{\rm L2}$};
+\node[left] at (15.35,3.45){M$_{1}$}; \node[right] at (17.85,3.45){M$_{2}$};
+% ground rail and block titles
+\draw[line width=.85pt] (-1.2,-.5) -- (19.6,-.5); \draw (9.7,-.5) node[ground]{};
+\node at (2.6,-1.0){Error amplifier (powered from $V_{\rm OUT}$)};
+\node at (9.8,-1.0){Mirror power stage and driver};
+\node at (16.6,-1.0){Tracking amplifier (powered from $V_{\rm OUT}$)};
+\end{circuitikz}
